@@ -21,6 +21,14 @@ package edu.eci.cvds.samples.services.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.List;
+
+import edu.eci.cvds.sampleprj.dao.mybatis.mappers.ClienteMapper;
+import edu.eci.cvds.sampleprj.dao.mybatis.mappers.ItemMapper;
+import edu.eci.cvds.sampleprj.dao.mybatis.mappers.TipoItemMapper;
+import edu.eci.cvds.samples.entities.Cliente;
+import edu.eci.cvds.samples.entities.TipoItem;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -57,25 +65,91 @@ public class MyBatisExample {
      * @param args
      * @throws SQLException 
      */
-    public static void main(String args[]) throws SQLException {
+    public static void main(String args[]) throws SQLException{
         SqlSessionFactory sessionfact = getSqlSessionFactory();
 
-        SqlSession sqlss = sessionfact.openSession();
+        try(SqlSession sqlss = sessionfact.openSession()) {
 
-        
-        //Crear el mapper y usarlo: 
-        //ClienteMapper cm=sqlss.getMapper(ClienteMapper.class)
-        //cm...
-        
-        
-        
-        sqlss.commit();
-        
-        
-        sqlss.close();
+            pruebaMapperCliente(sqlss);
+            pruebaMapperItems(sqlss);
+            /*
+             System.out.println("*******************************************");
+            TipoItemMapper clienteMapper = sqlss.getMapper(TipoItemMapper.class);
+            System.out.println(clienteMapper.getTiposItems());
 
+            System.out.println("****************************************************");
+            System.out.println(clienteMapper.getTipoItem(1).toString());
+             */
+
+            //Crear el mapper y usarlo:
+            //ClienteMapper cm=sqlss.getMapper(ClienteMapper.class);
+            //Cliente cliente = cm.consultarCliente(1);
+            //cm...
+
+
+            sqlss.commit();
+
+
+            sqlss.close();
+        }
+        System.exit(0);
         
         
+    }
+    private static void pruebaMapperCliente(SqlSession sqlss) {
+        //Crear el mapper y usarlo:
+        ClienteMapper cm= sqlss.getMapper(ClienteMapper.class);
+        //Consultar todos los clientes:
+        /*
+
+         */
+        List<Cliente> result = cm.consultarClientes();
+        for (Cliente c:result) {
+            System.out.println(c.toString());
+        }
+        System.out.println("***********************************************************************************");
+        /*
+         * //Consultar un cliente con id 8:*/
+        System.out.println(cm.consultarCliente(8).toString());
+
+        /**
+         System.out.println("***********************************************************************************");
+         */
+        //Insertar item rentado:
+        /*
+        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			//Fechas:
+			java.sql.Date sqlFechaInicial = new java.sql.Date(formato.parse("2021-10-06").getTime());
+	        java.sql.Date sqlFechaFinal = new java.sql.Date(formato.parse("2021-10-06").getTime());
+	        cm.agregarItemRentadoACliente(1478822, 92, sqlFechaInicial, sqlFechaFinal);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		   */
+    }
+
+    private static void pruebaMapperItems(SqlSession sqlss ) {
+        ItemMapper im= sqlss.getMapper(ItemMapper.class);
+        /**
+         //Insertar item :
+         //Fecha
+         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+         try {
+         java.sql.Date sqlfechaLanzamiento = new java.sql.Date(formato.parse("2021-05-12").getTime());
+         TipoItem tipoItem = new TipoItem(3, "Películas");
+         Item item = new Item(tipoItem,20,"Oxígeno","Película Oxigeno 2021 - Netflix",sqlfechaLanzamiento,5000,"DVD","Ciencia ficción");
+         im.insertarItem(item);
+         }catch (ParseException e) {
+         e.printStackTrace();
+         }**/
+        //Consultar Items:
+        System.out.println(im.consultarItems());
+        System.out.println("***********************************************************************************");
+        //Consultar Item con id 20:
+        System.out.println(im.consultarItem(20));
+
+
     }
 
 

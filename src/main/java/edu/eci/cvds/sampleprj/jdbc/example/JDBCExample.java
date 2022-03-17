@@ -57,7 +57,7 @@ public class JDBCExample {
             System.out.println("-----------------------");
 
 
-            int suCodigoECI=20134423;
+            int suCodigoECI=2170557;
             registrarNuevoProducto(con, suCodigoECI, "SU NOMBRE", 99999999);
             con.commit();
 
@@ -83,7 +83,22 @@ public class JDBCExample {
         //Crear preparedStatement
         //Asignar parámetros
         //usar 'execute'
-
+        //Crear preparedStatement
+        String insert = "INSERT INTO ORD_PRODUCTOS(codigo,nombre,precio) VALUES(" + codigo +", '"+ nombre + "',"+ precio + ")";
+        try( PreparedStatement preparedStatement = con.prepareStatement(insert); ){
+            //usar executeQuery
+            con.setAutoCommit(false);
+            preparedStatement.execute();
+            con.commit();
+        } catch (SQLException e) {
+            try {
+                e.printStackTrace();
+                System.err.print("Transaction is being rolled back");
+                con.rollback();
+            } catch (SQLException excep) {
+                e.printStackTrace();
+            }
+        }
 
         con.commit();
 
@@ -129,8 +144,8 @@ public class JDBCExample {
         int valorTotal = 0;
         //Crear prepared statement
         String consultaSQL = "SELECT SUM(ORD_PRODUCTOS.precio * ORD_DETALLE_PEDIDO.cantidad) AS total FROM ORD_PRODUCTOS " +
-                "JOIN ORD_DETALLE_PEDIDO ON ORD_PRODUCTOS.codigo = producto_fk JOIN ORD_PEDIDO.pedido_fk" +
-                " = ORD_PEDIDOS.codigo WHERE ORD_PEDIDOS.codigo = " + Integer.toString(codigoPedido);
+                "JOIN ORD_DETALLE_PEDIDO ON ORD_PRODUCTOS.codigo = ORD_DETALLE_PEDIDO.producto_fk" +
+                " WHERE ORD_DETALLE_PEDIDO.pedido_fk = " + Integer.toString(codigoPedido);
 
         try {
             PreparedStatement preparedStatement = con.prepareStatement(consultaSQL);
